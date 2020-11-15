@@ -1,0 +1,10 @@
+{
+	"modules": {
+		"*": [
+			"./app",
+			"../ArAlLib/*"
+		],
+		"components/*": "../ArAlLib/components/*",
+		"util/*": "../ArAlLib/util/*"
+	}
+}
