@@ -1,9 +1,8 @@
 {
 	"include": [
 		"$(MODDABLE)/examples/manifest_base.json",
-        "$(MODDABLE)/examples/manifest_net.json",
-        "$(MODDABLE)/modules/pins/pwm/manifest.json",
-		"$(MODDABLE)/modules/network/mqtt/manifest.json"
+		"$(MODDABLE)/examples/manifest_net.json",
+		"$(MODDABLE)/modules/pins/pwm/manifest.json"
 	],
 	"creation": {
 		"keys": {
@@ -18,11 +17,15 @@
 			"./main",
 			"./loadmod/*",
 			"$(MODULES)/network/websocket/*",
+			"$(MODULES)/data/base64/*",
+			"$(MODULES)/data/logical/*",
 			"$(MODULES)/network/mqtt/*"
 		]
 	},
 	"preload": [
 		"websocket",
+		"base64",
+		"logical",
 		"mqtt"
 	],
 	"strip": [
@@ -52,5 +55,4 @@
 			}
 		}
 	}
-
 }

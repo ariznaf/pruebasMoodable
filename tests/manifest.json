@@ -1,0 +1,6 @@
+{
+	"modules": {
+		"*": "./app",
+		"aral/util/*": "../arallib/util/*"
+	}
+}

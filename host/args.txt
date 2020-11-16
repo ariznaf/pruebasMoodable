@@ -1,1 +1,0 @@
-  -o d:\users\fernando\ProyectosProg\moddable\build\tmp\esp32\debug\pru -p esp32 -r mc.resources.c

@@ -1,4 +1,4 @@
-class RGBColor {
+class RGBColor extends Object {
     // Colores almacenados como RRGGBB en un entero de 32 bits con 10 bits por canal (valores de 0 a 1023)
     #rgb= 0;
     static isInvalidValue(value) 
@@ -14,22 +14,47 @@ class RGBColor {
     }
     constructor(red=0,green=0,blue=0)
     {
+        super();
         this.setColor(red,green.blue)
     }
-    // Inicializar el color con valores r,g,b de 0 a 1023.
+    // Init color with values r,g,b from 0 to 1023. 
+    // You can set the values with a dictionary like
+    // setcolor({r: xx, g: xx, b: xx})
+    // or
+    // setcolor({rgb: xxxxxx})
     setColor(red=0,green=0,blue=0) 
     {
-        if( RGBColor.isInvalidValue(red)|| RGBColor.isInvalidValue(green) || RGBColor.isInvalidValue(blue))
-            throw(`RGBColor.constructor: Out of range (0-1023) color passed to constructor { r: ${red}, g: ${green}, b: ${blue} }\n`);
-        this.#rgb= (red & 0x3FF)<<20;
-        this.#rgb |= (green & 0x3FF)<<10;
-        this.#rgb |= blue & 0x3FF;
-//        trace(`RGBColor.constructor: Color { r: ${red}, g: ${green}, b: ${blue}, rgb: ${this.#rgb}\n`);
+        if(typeof red === "object") {
+            trace(`RGBColor.setColor: typeof red.rgb= ${typeof red.rgb}\n`);
+            if(red.rgb !== "undefined") {
+                if( typeof red.rgb !== "number")
+                    throw(`RGBColor.setcolor: Called with invalid rgb value\n`);
+                    this.#rgb= red.rgb;
+                return;
+            } else {
+                this.b= red.b;
+                this.g= red.g;
+                this.r= red.r;
+            }
+        } else {
+            this.r= red;
+            this.g= green;
+            this.b= blue;
+        }
+        trace(`RGBColor.setColor: Color { r: ${red}, g: ${green}, b: ${blue}, rgb: ${this.#rgb} }\n`);
 
+    }
+    set rgb(rgb)
+    {
+        this.#rgb= rgb & 0x0FFF_FFFF;
+    }
+    get rgb()
+    {
+        return this.rgb & 0x0FFF_FFFF;
     }
     get r()
     {
-        return this.#rgb >>>20;
+        return (this.#rgb >>>20) & 0x3FF ;
     }
     get g()
     {
@@ -41,7 +66,7 @@ class RGBColor {
     }
     set r(red)
     {
-        if( RGBColor.isIinvalidValue(red) )
+        if( RGBColor.isInvalidValue(red) )
             throw(`RGBColor.set r: Out of range (0-1023) color passed ${red}\n`);
 
         this.#rgb = (red << 20) | (this.#rgb & 0x7_FFFF);
@@ -68,6 +93,14 @@ class RGBColor {
     get flag()
     {
         return this.#rgb >>>30;       
+    }
+    toString()
+    {
+        return "rgb:"+this.#rgb;
+    }
+    toJSON()
+    {
+        return { r: this.r, g: this.g, b: this.b};
     }
 }
 export default RGBColor;

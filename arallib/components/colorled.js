@@ -1,8 +1,8 @@
 import Timer from "timer";
 import PWM from "pins/pwm";
-import Color from "util/rgbcolor";
+import Color from "aral/util/rgbcolor";
 
-class ColorLed  {
+class ColorLed extends Object {
     /**
      *  Flashing interval in ms.
      */
@@ -12,6 +12,7 @@ class ColorLed  {
     #bpin;
     
     constructor(redpin = 12,greenpin =13,bluepin =14){
+        super();
         this.color = new Color();
         this.color.flag= 2;
         this.#rpin = new PWM({ pin: 12 });
@@ -41,6 +42,10 @@ class ColorLed  {
     isFlashing()
     {
         return(this.color.flag != 2);
+    }
+    toString()
+    {
+        return 'color:'+this.color
     }
 }
 export default ColorLed;
