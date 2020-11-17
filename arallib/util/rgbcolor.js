@@ -42,7 +42,7 @@ class RGBColor extends Object {
     }
     get rgb()
     {
-        return this.rgb>>>2;
+        return this.#rgba>>>2;
     }
     get r()
     {

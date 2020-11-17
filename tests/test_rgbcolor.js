@@ -3,13 +3,13 @@ let color;
 
 
 debugger;
-trace("===== RGBColor: constructor(200) expected output: 'rgb: 0x3E8000' ...\n");
+trace("===== RGBColor: constructor(200) expected output: 'r: 200, g: 0, b:0, a:0' ...\n");
 color= new Color(200);
 trace("===== ... got: "+color+'\n');
 
 
 debugger;
-trace("===== RGBColor: constructor({r:1000, g:0, b: 512}) expected output: 'r: 1000, g: 0, b:0, a:0' ...\n");
+trace("===== RGBColor: constructor({r:1000, g:0, b: 512}) expected output: 'r: 1000, g: 0, b:512, a:0' ...\n");
 color= new Color({r:1000, g:0, b: 512});
 trace("===== ... got: "+color+'\n');
 
@@ -28,12 +28,10 @@ trace("===== ... got: 0x"+color.rgb.toString(16)+'\n');
 
 
 debugger;
-trace("===== RGBColor: constructor(new Color(100,100,100))' ...\n");
+trace("===== RGBColor: constructor(new Color(100,100,100))' expected output: 'r: 100, g: 100, b:100, a:0' ...\n");
 //Creating a copy of a color from another color.
 color= new Color(new Color(100,100,100));
 trace("===== ... got: "+color+'\n');
-
-
 
 debugger;
 trace("===== RGBColor: testing get and set of color channels. r= 481, g= 222 b=947' ...\n");
