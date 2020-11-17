@@ -1,8 +1,8 @@
 import MQTT from "mqtt";
 import Net from "net";
-import Colorled from "aral/components/colorled";
+import Colorled from "aral_components/colorled";
 
-let cled= new Colorled(12,130,14);
+let cled= new Colorled(12,13,14);
 
 debugger;
 
@@ -12,7 +12,8 @@ let mqtt = new MQTT({
 	host: "router.casa",
 	port: 1883,	
 	id: "iot_" + Net.get("MAC")
-})
+});
+
 mqtt.onReady = function () {
 	trace("connection established\n");
 	mqttReady=true;
@@ -26,7 +27,7 @@ mqtt.onReady = function () {
 mqtt.onMessage = function (topic, data) {
 	trace(`mqtt_received message on topic "${topic}"`);
     let msg= JSON.parse(String.fromArrayBuffer(data));
-    cled.setColor(msg);
+    cled.setColor(msg.r,msg.g,msg.b);
 	mqtt.publish("test/ledColor", JSON.stringify(cled.color));
 
 }

@@ -3,7 +3,7 @@
 		"*": [
 			"./app"
 		],
-		"aral/util/*": "../arallib/util/*",
-		"aral/components/*": "../arallib/components/*"
+		"aral_util/*": "../arallib/util/*",
+		"aral_components/*": "../arallib/components/*"
 	}
 }

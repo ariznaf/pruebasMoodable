@@ -1,21 +1,32 @@
 /*
- * Copyright (c) 2016-2020 Moddable Tech, Inc.
- *
- *   This file is part of the Moddable SDK.
- * 
- *   This work is licensed under the
- *       Creative Commons Attribution 4.0 International License.
- *   To view a copy of this license, visit
- *       <http://creativecommons.org/licenses/by/4.0>
- *   or send a letter to Creative Commons, PO Box 1866,
- *   Mountain View, CA 94042, USA.
- *
+ * Test batteries for modules of arallib.
+ * use: mcrun -d -m -p <platform> 
+ * <platform>= esp32 (for esp32 microcontroller)
  */
 
-import a from "aral/util/a";
+ let modulesToTest= [
+    "test_rgbcolor"
+ ];
+import LoadMod from "loadmod";
 
 
-debugger;
-let message = "Hello, World";
-a();
+trace("== Beginning battery of tests\n");
+for(let i=0; i < modulesToTest.length;i++) {
 
+    let module= modulesToTest[i];
+    //Dont't break if there is an exception in the testing code.
+    try {
+        trace("==== Begin tests from "+module+"\n");
+
+        //Try to isolate tests, invoking the tests in a block code, so any variable is internal and can be destroyed.
+        {  
+            LoadMod.load(module);
+        }
+        trace("==== End tests from "+module+"\n");
+    } catch(error){
+        trace("==== Caught exception tests from "+module+" "+error+"\n");
+    }
+
+}
+
+trace("== Ended battery of tests\n");
