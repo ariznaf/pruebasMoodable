@@ -10,32 +10,55 @@ class ColorLed extends Object {
     #rpin;
     #gpin;
     #bpin;
-    
+    #output2pwm(r,g,b) {
+        this.#rpin.write(r);
+        this.#gpin.write(g);
+        this.#bpin.write(b);
+    }
+
+    #pwmOFF() {
+        this.#rpin.write(0);
+        this.#gpin.write(0);
+        this.#bpin.write(0);
+    }
     constructor(redpin = 12,greenpin =13,bluepin =14){
         super();
         this.#color = new Color();
-        this.#color.a= 2;
         this.#rpin = new PWM({ pin: redpin });
         this.#gpin = new PWM({ pin: greenpin });
         this.#bpin = new PWM({ pin: bluepin });       
     }
+    on() {
+        this.#color.a= 1;
+        this.#output2pwm(this.#color.r,this.#color.g,this.#color.b);
+    }
+    off(){
+        this.#color.a=0;
+        this.#pwmOFF()
+    }
+    set state(st) {
+        this.#color.a=st;
+    }
+    get state() {
+        return this.#color.a;
+    }
     flash(interval){
+        let on=true;
         if(interval===0) {
-            this.color.a=2;
+            this.#color.a =0;
+            return;
         } else {
-            this.color.a= 1;
-            Timer.repeat(id => {
-                if(this.color.a === 1) {
-                    this.#rpin.write(Color.invertValue(this.color.r));
-                    this.#gpin.write(Color.invertValue(this.color.g));
-                    this.#bpin.write(Color.invertValue(this.color.b));
-                    this.color.a= 0;
-                } else if(this.color.a === 0) {
-                    this.#rpin.write(1023);
-                    this.#gpin.write(1023);
-                    this.#bpin.write(1023);
-                    this.color.a= 1;
-                } else Timer.clear(id);
+            this.#color.a = 2;
+            return Timer.repeat(id => {
+                if(this.#color.a != 2) {
+                    Timer.clear(id);
+                } else if( on ){
+                    this.#output2pwm(this.#color.r,this.#color.g,this.#color.b);
+                    on= false;
+                } else {
+                    this.#pwmOFF();
+                    on= true;
+                }
             },interval);
         }                      
     }
@@ -44,6 +67,7 @@ class ColorLed extends Object {
         this.#color.r= red;
         this.#color.g= green;
         this.#color.b= blue;
+        if( this.#color.a == 1) this.#output2pwm(red,green,blue);
     }
     get color() 
     {
@@ -53,11 +77,11 @@ class ColorLed extends Object {
 
     isFlashing()
     {
-        return(this.color.a != 2);
+        return(this.#color.a == 2);
     }
     toString()
     {
-        return 'color:'+this.color
+        return 'color:'+this.#color
     }
 }
 export default ColorLed;
