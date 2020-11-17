@@ -25,7 +25,6 @@ class ColorLed extends Object {
         } else {
             this.color.a= 1;
             Timer.repeat(id => {
-                debugger;
                 if(this.color.a === 1) {
                     this.#rpin.write(Color.invertValue(this.color.r));
                     this.#gpin.write(Color.invertValue(this.color.g));

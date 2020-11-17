@@ -7,7 +7,7 @@ class RGBColor extends Object {
     {
         return (value & 0xFFFF_FFC00) != 0;
     }
-    static isInvalidAlfa(alfa)
+    static isInvalidFlag(flag)
     {
         return (flag & 0xFFFF_FFF0) != 0;
     }
@@ -75,7 +75,7 @@ class RGBColor extends Object {
         if( RGBColor.isInvalidValue(red) )
             throw(`RGBColor.set r: Out of range (0-1023) color passed ${red}\n`);
 
-        this.#rgba = (red << 22) | (this.#rgba & 0x3F_FFFF);
+        this.#rgba = (red << 22) | (this.#rgba & 0x003F_FFFF);
     }
     set g(green)
     {
@@ -89,12 +89,12 @@ class RGBColor extends Object {
         if( RGBColor.isInvalidValue(blue) )
             throw(`RGBColor.set g: Out of range (0-1023) color passed ${blue}\n`);
 
-        this.#rgba |= blue<<2;
+        this.#rgba = (blue<<2) | (this.#rgba & 0xFFFF_F003);
     }
     set a(value){
-        if(RGBColor.isInvalidAlfa(value))
+        if(RGBColor.isInvalidFlag(value))
             throw(`RGBColor.set flag: Out of range (0-3) flag passed ${blue}\n`);
-        this.#rgba |= value;
+        this.#rgba = value | (this.#rgba & 0xFFFF_FFFC);
     }
     toString()
     {
