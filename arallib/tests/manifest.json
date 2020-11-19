@@ -1,0 +1,7 @@
+{
+	"modules": {
+		"*": "./*",
+		"loadmod/*": "../../host/loadmod/*",
+		"aral/util/*": "../util/*"
+	}
+}

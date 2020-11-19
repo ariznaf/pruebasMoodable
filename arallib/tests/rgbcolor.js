@@ -1,4 +1,4 @@
-import Color from "aral_util/rgbcolor";
+import Color from "aral/util/rgbcolor";
 let color;
 
 

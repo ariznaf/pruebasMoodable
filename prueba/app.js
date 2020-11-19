@@ -5,7 +5,7 @@ import Colorled from "aral_components/colorled";
 
 let cled= new Colorled(12,13,14);
 let flashinterval=1000;
-let colorinterval=100;
+let colorinterval=25;
 let devID= "ArAl_"+Net.get("MAC");
 
 cled.setColor(200,400,300);
@@ -38,7 +38,7 @@ mqtt.onReady = function () {
 
 
 mqtt.onMessage = function (topic, data) {
-	trace(`mqtt_received message on topic "${topic}"`);
+	trace(`mqtt_received message on topic "${topic}"\n`);
 	let msg= JSON.parse(String.fromArrayBuffer(data));
 	switch(topic) 
 	{
@@ -96,11 +96,4 @@ Timer.delay(200);
 cled.off();
 
 cled.flash(flashinterval);
-
-
-Timer.repeat(id => {
-	cled.setColor(Math.random()*1024,Math.random()*1024,Math.random()*1024);
-},colorinterval);
-
-
 

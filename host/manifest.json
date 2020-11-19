@@ -3,7 +3,8 @@
 		"$(MODDABLE)/examples/manifest_base.json",
         "$(MODDABLE)/examples/manifest_net.json",
         "$(MODDABLE)/modules/pins/pwm/manifest.json",
-		"$(MODDABLE)/modules/network/mqtt/manifest.json"
+		"$(MODDABLE)/modules/network/mqtt/manifest.json",
+		"$(MODDABLE)/modules/pins/i2c/manifest.json"
 	],
 	"creation": {
 		"keys": {
@@ -19,11 +20,15 @@
 			"./loadmod/*",
 			"$(MODULES)/network/websocket/*",
 			"$(MODULES)/network/mqtt/*"
-		]
+		],
+		"pins/smbus": "$(MODDABLE)/modules/pins/smbus/smbus"
+
 	},
 	"preload": [
 		"websocket",
-		"mqtt"
+		"mqtt",
+		"pins/i2c",
+		"pins/smbus"
 	],
 	"strip": [
 		"Atomics",
@@ -49,7 +54,14 @@
 					"$(BUILD)/devices/esp32/setup/network"
 				]
 
-			}
+			},
+			"defines": {
+                "i2c": {
+                    "sda_pin": 21,
+                    "scl_pin": 22
+                }
+            }
+
 		}
 	}
 

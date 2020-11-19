@@ -1,7 +1,0 @@
-{
-	"modules": {
-		"*": "./*",
-		"loadmod/*": "../host/loadmod/*",
-		"aral_util/*": "../arallib/util/*"
-	}
-}
