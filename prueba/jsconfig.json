@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "baseUrl": "d:/users/fernando/proyectoselectronica/moddable/modules/",
+    "paths": {
+        "*":  [
+          "./modules/*"
+        ]
+    }
+  },
+  "exclude": ["node_modules"]
+}

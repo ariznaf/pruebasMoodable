@@ -1,4 +1,4 @@
-import MQTT from "mqtt";
+import MQTT from "network/mqtt";
 import Net from "net";
 import Timer from "timer";
 import Colorled from "aral_components/colorled";

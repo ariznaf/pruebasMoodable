@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "baseUrl": "D:/Users/fernando/ProyectosElectronica/moddable/modules/",
+    "paths": {
+      "*": ["D:/Users/fernando/ProyectosElectronica/moddable/modules/base/*"]
+    }
+  },
+  "exclude": ["node_modules"]
+}

@@ -1,9 +1,0 @@
-{
-	"modules": {
-		"*": [
-            "./app"
-        ],
-		"aral_util/*": "../arallib/util/*",
-		"aral_components/*": "../arallib/components/*"
-    }
-}

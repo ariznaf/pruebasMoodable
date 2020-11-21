@@ -2,6 +2,6 @@
 	"modules": {
 		"*": "./*",
 		"loadmod/*": "../../host/loadmod/*",
-		"aral/util/*": "../util/*"
+		"aral_util/*": "../util/*"
 	}
 }

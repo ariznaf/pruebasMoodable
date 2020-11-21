@@ -5,9 +5,9 @@
  */
 
  let modulesToTest= [
-     "infiniteloop",
-    "test_rgbcolor"
- ];
+    "rgbcolor",
+    "infiniteloop"
+];
 import LoadMod from "loadmod";
 
 

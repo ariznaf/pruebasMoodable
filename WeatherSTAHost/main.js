@@ -3,6 +3,7 @@ import WiFi from "wifi";
 import Net from "net";
 
 export default function () {
+	debugger;
 	if (!LoadMod.has("check") || !LoadMod.has("app"))
 		return trace("Host installed. Ready for mods.\n");
 
