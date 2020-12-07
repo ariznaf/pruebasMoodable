@@ -4,9 +4,9 @@
 	],
 	"modules": {
 		"*": [
-			"./example"
+			"./app"
 		],
-		"util/color/*": "../lib/color/*"
+		"util_color/*": "../lib/color/*"
 
 	}
 }
