@@ -4,7 +4,8 @@
     "baseUrl": "d:/users/fernando/proyectoselectronica/moddable/modules/",
     "paths": {
         "*":  [
-          "./modules/*"
+          "./modules/*",
+          ",/*"
         ]
     }
   },

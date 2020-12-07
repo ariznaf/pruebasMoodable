@@ -2,9 +2,6 @@
 	"include": [
 		"$(MODDABLE)/examples/manifest_base.json",
 		"$(MODULES)/pins/digital/manifest.json",
-		"$(MODULES)/pins/digital/monitor/manifest.json",
-		"$(MODULES)/pins/analog/manifest.json",
-		"$(MODULES)/pins/servo/manifest.json",
 		"$(MODULES)/pins/i2c/manifest.json"
 	],
 	"defines": {
@@ -17,7 +14,10 @@
 		],
 		"pins/smbus": "$(MODULES)/pins/smbus/smbus"
 	},
-	"preload": "pins/smbus",
+	"preload": [
+		"pins/smbus",
+		"pins/i2c"
+	],
 	"platforms": {
 		"esp": {
 			"modules": {
