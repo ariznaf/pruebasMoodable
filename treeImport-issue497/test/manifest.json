@@ -6,7 +6,7 @@
 		"*": [
 			"./app"
 		],
-		"util_color/*": "../lib/color/*"
+		"util/color/*": "../lib/color/*"
 
 	}
 }
