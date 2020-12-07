@@ -8,27 +8,8 @@
 import Timer from "timer";
 import BME280 from "./bme280";
 
-function traceBuffer(buffer)
-{
-    if(!ArrayBuffer.isView(buffer)) buffer= new Uint8Array(buffer); 
-    for(let i=0;i<buffer.byteLength;i++) trace(buffer[i].toString(16)+' ');
-    trace('\n');
-}
-
-function traceNumber(number)
-{
-    trace("0x"+number.toString(16)+"="+number+"\n");
-
-}
-
 let sensor = new BME280.Sensor();
 let id= sensor.ID;
-trace("sensor id: 0x"+id.toString(16)+'\n');
-if (!sensor.checkID()) {
-    Error("Device connected to the given I2C address is not a BME280")
-}
-trace("status: 0b"+sensor.status.toString(2)+'\n');
-
 let calibrate= sensor.readCalibration(sensor);
 Timer.repeat( id=> {
     //Write to CTRL_HUM must be made before setting CTRL_MEAS, 

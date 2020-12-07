@@ -12,15 +12,10 @@
  *
  */
 
-import LoadMod from "loadmod";
+ import blue from "util_color/blue";
+ import red from "util_color/red";
 
-export default function () {
-	if (LoadMod.has("check")) {
-		let check = LoadMod.load("check");
-		check();
-		if (LoadMod.has("app"))
-			LoadMod.load("app");
-	} else {
-		trace("Device flashed. Ready to install apps.\n");
-	}
-}
+trace("Welcome.\n");
+
+blue();
+red();

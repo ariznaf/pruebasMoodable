@@ -2,9 +2,12 @@ import LoadMod from "loadmod";
 
 export default function () {
 	debugger;
-	if (!LoadMod.has("check") || !LoadMod.has("app"))
-		return trace("Host installed. No apps loaded. Ready to install apps.\n");
-
-	(LoadMod.load("check"))();
-	LoadMod.load("app");
+	if (LoadMod.has("check")) {
+		let check = LoadMod.load("check");
+		check();
+		if (LoadMod.has("app"))
+			LoadMod.load("app");
+	} else {
+		trace("Device flashed. Ready to install apps.\n");
+	}
 }
