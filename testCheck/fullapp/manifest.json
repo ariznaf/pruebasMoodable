@@ -10,7 +10,7 @@
 	"modules": {
 		"*": [
 			"./main",
-			"./bme280"
+			"../app/bme280"
 		],
 		"pins/pwm": "$(MODULES)/pins/pwm/pwm",
 		"pins/smbus": "$(MODULES)/pins/smbus/smbus"
@@ -44,6 +44,6 @@
 	},
 	"strip": [],
 	"build": {
-		"NAME": "pruBMEHost"
+		"NAME": "testcheckfullapp"
 	}
 }

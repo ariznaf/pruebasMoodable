@@ -2,6 +2,7 @@
 	"include": [
 		"$(MODDABLE)/examples/manifest_base.json",
         "$(MODDABLE)/examples/manifest_net.json",
+		"$(MODULES)/pins/digital/manifest.json",
         "$(MODDABLE)/modules/pins/pwm/manifest.json",
 		"$(MODDABLE)/modules/network/mqtt/manifest.json",
 		"$(MODDABLE)/modules/pins/i2c/manifest.json"
@@ -48,20 +49,30 @@
 		"NAME": "WeatherSTA"
 	},
 	"platforms": {
-		"esp32": {
+		"esp": {
 			"modules": {
-				"~": [
-					"$(BUILD)/devices/esp32/setup/network"
-				]
+				"*": "$(MODULES)/pins/pwm/esp/*"
 			},
 			"defines": {
-                "i2c": {
-                    "sda_pin": 21,
-                    "scl_pin": 22
-                }
-            }
-
+				"i2c": {
+					"sda_pin": 5,
+					"scl_pin": 4
+				}
+			}
+		},
+		"esp32": {
+			"modules": {
+				"*": "$(MODULES)/pins/pwm/esp32/*"
+			},
+			"defines": {
+				"i2c": {
+					"sda_pin": 21,
+					"scl_pin": 22
+				}
+			}
+		},
+		"...": {
+			"error": "Platform not supported"
 		}
 	}
-
 }
