@@ -84,4 +84,5 @@ class ColorLed extends Object {
         return 'color:'+this.#color
     }
 }
+Object.freeze(ColorLed.prototype);
 export default ColorLed;

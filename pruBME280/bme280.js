@@ -1,6 +1,7 @@
 import SMBUS from "pins/smbus";
+
 debugger;
-const CONFIG = Object.freeze({
+const DEFINES = Object.freeze({
     ADDRESS: 0x76,
     ALTADDRESS:  0x77,
     CHPID: 0x60,
@@ -32,24 +33,47 @@ const CONFIG = Object.freeze({
 },true);
 
 /**
- * @description Implements driver to access BME280 data, a sensor that provides high precision temperature, pression and humidity.
+ * @description Implements driver to access BME280 data, a device that provides high precision temperature, pression and humidity.
+ * This is a low level driver class. The goal is to provide easy access directly to the device, reading registers and setting them directly to it,
+ * without saving any status or value internally, in order to minimize memory consuption and provide direct control of the device.
  * @class BME280
  * @extends SMBUS
  */
-class Sensor extends SMBUS {
+class Device extends SMBUS {
     /**
-     * @description Creates a I2C connection with the sensor.
-     * BME280 may Have two different adresses fixed by wiring: CONFIG.ADDRESS (0x76) of CONFIG.ALTADDRESS (0x77).
+     * This function returns true if the status value passed indicates that the device is performing a measure operation.
+     * 
+     * @param {*} status value read from status register.
+     * @returns true if measuring.
+     */
+    static statusIsMeasuring(status) {
+        return( (status & DEFINES.STATUS.MEASURING) != 0 );
+
+    }
+    /**
+     * This function returns true if the status value passed indicates that the device is performing a NVM update operation (IM_UPDATE)
+     * 
+     * @param {*} status value read from status register.
+     * @returns true if updating.
+     */
+    static statusIsUpdating(status) {
+        return( (status & DEFINES.STATUS.IM_UPDATE) != 0 );
+
+    }
+
+    /**
+     * @description Creates a I2C connection with the device.
+     * BME280 may Have two different adresses fixed by wiring: DEFINES.ADDRESS (0x76) of DEFINES.ALTADDRESS (0x77).
      * 
      * If no address is give, it uses 0x76 that is the default address of the device.
      * 0x77 is used too by the BMP280, which is compatible with BME280 but has no Humidity registers.
-     * @param {Number} dict {Object} SMBUS dictionary with options to configure SMBUS. I none is passed, one is created with the default address.
+     * @param {Object} dict SMBUS dictionary with options to configure SMBUS. I none is passed, one is created with the default address.
      * Is passed dictrionary has no address entry, one is created with default address.
      * 
      */
     constructor(dict) {
-        if( dict === undefined) dict= {address: CONFIG.ADDRESS };
-        else if (dict.address === undefined) dict.addres= CONFIG.ADDRESS;        
+        if( dict === undefined) dict= {address: DEFINES.ADDRESS };
+        else if (dict.address === undefined) dict.addres= DEFINES.ADDRESS;        
         super(dict);
     }
     /**
@@ -57,7 +81,7 @@ class Sensor extends SMBUS {
      * @returns {Number} (Uint8) chip ID
      */
     get ID(){
-        return this.readByte(CONFIG.REG.ID);
+        return this.readByte(DEFINES.REG.ID);
     }
 
     /**
@@ -65,19 +89,36 @@ class Sensor extends SMBUS {
      * @returns {boolean} true if the chip is a BME280, false otherwise
      */
     checkID() {
-        return this.ID == CONFIG.CHPID;
+        return this.ID == DEFINES.CHIPID;
     }
 
     /**
      * @description Gets the status register from the device.
-     * @returns {} Returns the status register of the BM
+     * @returns {} Returns the status register of the BM280
      */
     get status() {
-        return(this.readByte(CONFIG.REG.STATUS));
+        return(this.readByte(DEFINES.REG.STATUS));
     }
 
     /**
-     * Read all channels from the sensor
+     * @desc Reads config params from the device. Configurations may be changed using DeviceConfig methods and properties.
+     * @returns DeviceConfig object with read parameters.
+     */
+    readConfigs() {
+        return new Config(this);
+    }
+
+    /**
+     * @desc writes previously read config params to the device, after changing throughs DeviceConfig methods and properties.
+     * Is equivalent to using DeviceConfig.write(device) method.
+     * @param deviceConfig DeviceConfig object with parameters to be written.
+     */
+    writeConfigs(deviceConfig) {
+        value.write(this);
+    }
+    /**
+     * Read all channels from the device
+     * @returns RawSample with the sample read from device.
      */
     readRaw() {
         return new RawSample(this);
@@ -87,49 +128,181 @@ class Sensor extends SMBUS {
      */
     reset()
     {
-        this.writeByte(CONFIG.REG.RESET,CONFIG.RESETCODE);
+        this.writeByte(DEFINES.REG.RESET,DEFINES.RESETCODE);
     }
         /**
-     * @description Reads Temperature calibration data from sensor and returns a TempCal object.
+     * @description Reads Temperature calibration data from device and returns a TempCal object.
      * 
-     * @returns {TempCal} object  with temperature calibration data from the sensor. Use it to convert raw data to engineering units.
+     * @returns {TempCal} object  with temperature calibration data from the device. Use it to convert raw data to engineering units.
      */
     readCalibration(press=false) {
         return new Calibrate(this,press);
     }
 }
-Object.freeze(Sensor,true);
+Object.freeze(Device.prototype);
+
+class DeviceConfig {
+    #data;
+    constructor( device ) {
+        this.#data= device.readBlock(DEFINES.REG.CTRL_HUM,4);
+    }
+    /**
+     * @desc writes the all the config data (config, ctrl_meas and ctrl_hum) to the device in one operation.
+     * @param device SMBUS device to write data to.
+     */
+    write(device) {
+        device.writeBlock(DEFINES.REG.CTRL_HUM,4);
+    }
+
+    /**
+     * @desc writes the config register of the device.
+     * @param device SMBUS device to write to.
+     */
+    writeConfig(device) {
+        this.writeByte(DEFINES.REG.CONFIG,value);
+    }
+    get config() {
+        return this.#data[3];
+    }
+    set config(value)  {
+        //Make sure the bit 1 is not changed, as it is reserved.
+        this.#data[3]= (value & 0b1111_1101) | (this.#data[3] & 0b10);
+    }
+    get tstandby() {
+        return this.#data[3] >>>5;
+    }
+    set tstandby(value) {
+        this.#data[3]= (value<<5) | (this.#data[3] & 0b0001_1111);
+    }
+    get filter() {
+        return (this.#data[3] & 0b0001_1100) >>2;
+    }
+    set filter(value) {
+        this.#data[3]= (value<<2 & 0b0001_1100) | (this.#data[3] & 0b1110_0011);
+    }
+
+    get spi3wEnable() {
+        return (this.#data[3] & 0b1) != 0;
+    }
+    set spi3wEnable(value) {
+        if (value) {
+            this.#data[3] |= 0b1;
+
+        } else {
+            this.#data[3] &= 0b1111_1110;
+        }
+    }
+
+    /**
+     * @desc writes the ctrl_meas register of the device.
+     * You can user write() to write all the configuration data at the same time.
+     * ctrl_meas should be written after ctrl_hum in order to changes to the later be effective.
+     * @param device SMBUS device to write to.
+     */
+    writeCtrlMeas(device) {
+        this.writeByte(DEFINES.REG.CTRL_MEAS,this.#data[2]);        
+    }
+
+    get ctrlMeas() {
+        return this.#data[2];
+    }
+    set ctrlMeas(value)  {
+        this.#data[2] = value;
+    }
+
+    get overSampTemp() {
+        return (this.#data[2] >>>5);
+    }
+    set overSampTemp(value) {
+        this.#data[2]= (value<<5 & 0b1110_0000) | (this.#data[2] & 0b0001_1111);
+    }
+    get overSampPress() {
+        return (this.#data[2] >>>2)&0b111;
+    }
+    set overSampPress(value) {
+        this.#data[2]= (value<<2 & 0b0001_1100) | (this.#data[2] & 0b1110_0011);
+    }
+    get mode() {
+        return this.#data[2]&0b11;
+    }
+    set mode(value) {
+        this.#data[2]= (value & 0b11) | (this.#data[2] & 0b1111_1100);
+    }
+    get status() {
+        return this.#data[1];
+    }
+    get isMeasuring() {
+        return (this.#data[2] & 0b1000) != 0;
+    }
+    get isUpdatingIM() {
+        return (this.#data[2] & 0b1) != 0;
+    }
+
+    /**
+     * @description Writes only the ctrl_hum register to the device.
+     * You can user write() to write all the configuration data at the same time.
+     * If the registers are to be written individually, ctr_hum should be written before ctrl_meas
+     * in order to be effective.
+     * @param device SMBUS device to write to.
+     */
+    writeCtrlHum() {
+        this.writeByte(DEFINES.REG.CTRL_HUM,this.#data[0]);
+    }
+    get ctrlHum() {
+        return(this.#data[0]);
+    }
+    
+    set ctrlHum(value){
+        //Be sure not to change reserved bits of the register.
+        this.#data[0]= (value & 0b111);
+    }
+    get overSampHum() {
+        return(this.#data[0] &0b111);
+    }
+    set overSampHum(value){
+        //Be sure not to change reserved bits of the register.
+        this.#data[0]= (value & 0b111);
+    }
+}
+Object.freeze(DeviceConfig.prototype);
 
 class RawSample {
     #data;
-    constructor( sensor ) {
+
+    /**
+     * Reads a sample from the device passed as arguments and stores it in memory for later use.
+     * You normaly create RawSamples using Device.readAll()
+     * 
+     * @param {SMBUS} device from which read the sample.
+     */
+    constructor( device ) {
         let buffer= new ArrayBuffer(8);
-        sensor.readBlock(CONFIG.REG.PRES,8,buffer);
+        device.readBlock(DEFINES.REG.PRES,8,buffer);
         this.#data= new DataView( buffer);
     }
     get press() {
         let rawpress= this.#data.getUint32(0,false)>>12;
-        //If the sensor is not configured to read pressure, it returns 0x8000, let's convert it to NAN
+        //If the device is not configured to read pressure, it returns 0x8000, let's convert it to NAN
         trace("rawpress: "+rawpress.toString(16)+"\n");
         if( rawpress == -0x8_0000 ) rawpress= Number.NaN;
         return rawpress;
     }
     get  temp() {
         let rawtemp= this.#data.getUint32(3,false)>>12;
-        //If the sensor is not configured to read temperature, it returns 0x800, let's convert it to NAN
+        //If the device is not configured to read temperature, it returns 0x800, let's convert it to NAN
         trace("rawtemp: "+rawtemp.toString(16)+"\n");
         if( rawtemp == -0x8_0000 ) rawtemp= Number.NaN;
         return rawtemp;
     }
     get hum() {
         let rawhum= this.#data.getUint16(6,false);
-        //If the sensor is not configured to read humidity, it returns 0x8000, let's convert it to NAN
+        //If the device is not configured to read humidity, it returns 0x8000, let's convert it to NAN
         trace("rawhum: "+rawhum.toString(16)+"\n");
         if( rawhum == 0x8000) rawhum= Number.NaN;
         return rawhum;
     }
 }
-Object.freeze(RawSample,true);
+Object.freeze(RawSample.prototype);
 
 /**
 * Positions of the calibration parameters in the buffer read from the Calibration table of the device.
@@ -174,42 +347,42 @@ const CALDIG = Object.freeze({
 
 
 /**
- * @description This class is used to implement reading temperature calibration data from the sensor, and apply the
- * calibration params to the raw temperature data read from the sensor and transform it to engineering units.
+ * @description This class is used to implement reading temperature calibration data from the device, and apply the
+ * calibration params to the raw temperature data read from the device and transform it to engineering units.
  */
 class Calibrate {
-    //Dataview of 31 bytes (13 if pressure is not read) read from the sensor wit calibration data.
+    //Dataview of 31 bytes (13 if pressure is not read) read from the device wit calibration data.
     #param=null;
     /**
     * @description Reads Temperature calibration data from address DIG_T and saves them internally for calibration in a
     * DataView of a buffer of 31 bytes (13 if pressure is not read).
-    * @param {Sensor}  sensor   to be read.
-    * @param {boolean} press true if pressure calibration params is to be read too (default: false). Temperature and humidity params are alway read.
+    * @param device Device to be read.
+    * @param press true if pressure calibration params is to be read too (default: false). Temperature and humidity params are alway read.
     */
-    constructor(sensor,press=false) {
+    constructor(device,press=false) {
         let buffer= new ArrayBuffer(press?31:13);
         let data= new Uint8Array(buffer);
         //read temperature parameters to the param 
-        sensor.readBlock(CONFIG.REG.DIG_T,6,buffer);
+        device.readBlock(DEFINES.REG.DIG_T,6,buffer);
 
         //read humidity params and copy it to the corresponding param table positions.
         //read the single byte dig_H1 and copy it directly to the corresponding buffer position.
-        data[CALDIG.dig_H1]=sensor.readByte(CONFIG.REG.DIG_H1);
+        data[CALDIG.dig_H1]=device.readByte(DEFINES.REG.DIG_H1);
 
         //Read rest of parameters (dig_H2 to dig_H6) in a buffer and copy them to the appropiate buffer position.
-        let newbuf= sensor.readBlock(CONFIG.REG.DIG_H2,6);
+        let newbuf= device.readBlock(DEFINES.REG.DIG_H2,6);
         data.set(newbuf,CALDIG.dig_H2);
 
 
-        //If press calibration data is to be read, read it from the sensor and copy it to the destination table.
+        //If press calibration data is to be read, read it from the device and copy it to the destination table.
         if(press) {
-            newbuf= sensor.readBlock(CONFIG.REG.DIG_P,18);
+            newbuf= device.readBlock(DEFINES.REG.DIG_P,18);
             data.set(newbuf,CALDIG.dig_P1)
         }
         this.#param= new DataView(buffer);
     }
     /**
-     * @description Calculates Temperature in ºC from raw temp data from the sensor.
+     * @description Calculates Temperature in ºC from raw temp data from the device.
      * also returns an integer representatios of temperature used in calculating pressure and humidity (t_fine)
      * 
      * @param {RawSample} raw : raw temperature read from the device 
@@ -230,12 +403,12 @@ class Calibrate {
         return [final,t_fine];
     }
     /**
-     * @description Calculates Humidity  in % from raw temp data from the sensor (and the t_fine value)
+     * @description Calculates Humidity  in % from raw temp data from the device (and the t_fine value)
      * also returns an integer representatios of temperature used in calculating pressure and humidity (t_fine)
      * 
      * @param {RawSample} raw (uint16) raw : raw temperature read from the device 
      * @param {Number} t_fine (int16) The t_fine temperature param returned previously by readTemp used in calibrations calculus.
-     * @returns {Number} Humidity (int32) in %*1024 in integer form (1024 represents 1% humidity, NAN if sensor is not configured to read humidity)
+     * @returns {Number} Humidity (int32) in %*1024 in integer form (1024 represents 1% humidity, NAN if device is not configured to read humidity)
      **/
     getHum(rawSample,t_fine) {
         let raw= rawSample.hum;
@@ -258,12 +431,12 @@ class Calibrate {
     }
 
     /**
-     * @description Calculates Pressure in hPafrom raw temp data from the sensor (and the t_fine value)
+     * @description Calculates Pressure in hPafrom raw temp data from the device (and the t_fine value)
      * also returns an integer representatios of temperature used in calculating pressure and humidity (t_fine)
      * 
      * @param {Number} raw (uint16) raw : raw temperature read from the device 
      * @param {Number} t_fine (int16) The t_fine temperature param returned previously by readTemp used in calibrations calculus.
-     * @returns {Number} Pressure (int32) in Pa*16  (16 represent 1 Pa, NAN if sensor is not configured to read humidity or pressure calibration parameters have not been read)
+     * @returns {Number} Pressure (int32) in Pa*16  (16 represent 1 Pa, NAN if device is not configured to read humidity or pressure calibration parameters have not been read)
      **/
     getPress(rawSample,t_fine) {
         let raw= rawSample.press;
@@ -298,6 +471,6 @@ class Calibrate {
         return Math.round(p*16+ var1 + var2 + dig_P7);
     }
 }
-Object.freeze(Calibrate,true);
+Object.freeze(Calibrate.prototype);
 
-export {CONFIG,Sensor, RawSample, Calibrate};
+export {Device,DeviceConfig,DEFINES, RawSample, Calibrate};

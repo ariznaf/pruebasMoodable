@@ -105,4 +105,6 @@ class RGBColor extends Object {
         return { r: this.r, g: this.g, b: this.b, a: this.a};
     }
 }
+
+Object.freeze(RGBColor.prototype);
 export default RGBColor;
