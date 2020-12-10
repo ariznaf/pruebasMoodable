@@ -42,6 +42,6 @@ class Sensor extends SMBUS {
         return this.ID == 0x60;
     }
 }
-Object.freeze(Sensor,true);
+Object.freeze(Sensor.prototype);
 
 export {CONFIG,Sensor};

@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+      "target": "es2018",
+      "allowJs": true,
+      "checkJs": true,
+      "baseUrl": "D:/Users/fernando/ProyectosElectronica/moddable/typings",
+      "include": "D:/Users/fernando/ProyectosElectronica/xs/includes/xs.d.ts",
+    }
+}
