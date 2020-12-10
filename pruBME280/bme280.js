@@ -28,8 +28,34 @@ const DEFINES = Object.freeze({
     MODE : {
         SLEEP: 0x00,
         FORCED: 0x01,
-        NORMAL: 0x10
+        NORMAL: 0x11
+    },
+    OVERSAMP: {
+        SKIP: 0,
+        X1: 1,
+        X2: 2,
+        X4: 3,
+        X8: 4,
+        X16: 5
+    },
+    FILTER: {
+        OFF: 0,
+        x2: 1,
+        X4: 2,
+        X8: 3,
+        X16:4
+    },
+    TSTANDBY: {
+        T0_5: 0,
+        T62_5: 1,
+        T125: 2,
+        T250: 3,
+        T500: 4,
+        T1000: 5,
+        T10: 6,
+        T20: 7
     }
+
 },true);
 
 /**
@@ -71,9 +97,8 @@ class Device extends SMBUS {
      * Is passed dictrionary has no address entry, one is created with default address.
      * 
      */
-    constructor(dict) {
-        if( dict === undefined) dict= {address: DEFINES.ADDRESS };
-        else if (dict.address === undefined) dict.addres= DEFINES.ADDRESS;        
+    constructor(dict={address: DEFINES.ADDRESS}) {
+        if (dict.address === undefined) dict.addres= DEFINES.ADDRESS;        
         super(dict);
     }
     /**
@@ -99,13 +124,19 @@ class Device extends SMBUS {
     get status() {
         return(this.readByte(DEFINES.REG.STATUS));
     }
+    get isMeasuring() {
+        return((this.readByte(DEFINES.REG.STATUS)&DEFINES.STATUS.MEASURING)!= 0);
+    }
+    get isUpdatingIM() {
+        return((this.readByte(DEFINES.REG.STATUS)&DEFINES.STATUS.IM_UPDATE)!= 0);
+    }
 
     /**
      * @desc Reads config params from the device. Configurations may be changed using DeviceConfig methods and properties.
      * @returns DeviceConfig object with read parameters.
      */
     readConfigs() {
-        return new Config(this);
+        return new DeviceConfig(this);
     }
 
     /**
@@ -114,7 +145,17 @@ class Device extends SMBUS {
      * @param deviceConfig DeviceConfig object with parameters to be written.
      */
     writeConfigs(deviceConfig) {
-        value.write(this);
+        deviceConfig.write(this);
+    }
+
+    /**
+     * After initiating a read in force mode, this funtion checks if the device has finished reading from the configure sensors.
+     * It does so by testing the mode register (in ctrl_meas) as it will be cleared to SLEEP after the read is performed.
+     * It only works in forced mode, as after each read the device will turn to SLEEP mode, in NORMAL mode it remains in that mode.
+     * @returns true if the read has already finished.
+     */
+    forceReadFinished() {
+        return (this.readByte(DEFINES.REG.CTRL_MEAS)& 0b11) != DEFINES.MODE.SLEEP;
     }
     /**
      * Read all channels from the device
@@ -159,7 +200,7 @@ class DeviceConfig {
      * @param device SMBUS device to write to.
      */
     writeConfig(device) {
-        this.writeByte(DEFINES.REG.CONFIG,value);
+        device.writeByte(DEFINES.REG.CONFIG,value);
     }
     get config() {
         return this.#data[3];
@@ -200,7 +241,7 @@ class DeviceConfig {
      * @param device SMBUS device to write to.
      */
     writeCtrlMeas(device) {
-        this.writeByte(DEFINES.REG.CTRL_MEAS,this.#data[2]);        
+        device.writeByte(DEFINES.REG.CTRL_MEAS,this.#data[2]);        
     }
 
     get ctrlMeas() {
@@ -237,6 +278,14 @@ class DeviceConfig {
     get isUpdatingIM() {
         return (this.#data[2] & 0b1) != 0;
     }
+    /**
+     * @description Changes mode to forced mode and writes to ctrl_meas in order to force a read from sensors with the current parameters previously set.
+     * 
+     */
+    forceRead(device) {
+        this.mode= DEFINES.MODE.FORCED;
+        this.writeCtrlMeas(device);
+    }
 
     /**
      * @description Writes only the ctrl_hum register to the device.
@@ -245,8 +294,8 @@ class DeviceConfig {
      * in order to be effective.
      * @param device SMBUS device to write to.
      */
-    writeCtrlHum() {
-        this.writeByte(DEFINES.REG.CTRL_HUM,this.#data[0]);
+    writeCtrlHum(device) {
+        device.writeByte(DEFINES.REG.CTRL_HUM,this.#data[0]);
     }
     get ctrlHum() {
         return(this.#data[0]);
@@ -283,21 +332,18 @@ class RawSample {
     get press() {
         let rawpress= this.#data.getUint32(0,false)>>12;
         //If the device is not configured to read pressure, it returns 0x8000, let's convert it to NAN
-        trace("rawpress: "+rawpress.toString(16)+"\n");
         if( rawpress == -0x8_0000 ) rawpress= Number.NaN;
         return rawpress;
     }
     get  temp() {
         let rawtemp= this.#data.getUint32(3,false)>>12;
         //If the device is not configured to read temperature, it returns 0x800, let's convert it to NAN
-        trace("rawtemp: "+rawtemp.toString(16)+"\n");
         if( rawtemp == -0x8_0000 ) rawtemp= Number.NaN;
         return rawtemp;
     }
     get hum() {
         let rawhum= this.#data.getUint16(6,false);
         //If the device is not configured to read humidity, it returns 0x8000, let's convert it to NAN
-        trace("rawhum: "+rawhum.toString(16)+"\n");
         if( rawhum == 0x8000) rawhum= Number.NaN;
         return rawhum;
     }

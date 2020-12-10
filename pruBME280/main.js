@@ -16,39 +16,55 @@ trace("Raw temperature read: "+rawspl.temp+"\n");
 trace("Raw presssure read: "+rawspl.press+"\n");
 trace("Raw humidity  read: "+rawspl.hum+"\n");
 let calibrate= device.readCalibration(true);
-Timer.repeat( id=> {
-    //Write to CTRL_HUM must be made before setting CTRL_MEAS, 
-    //and CTRL_MEAS must be written for changes  to become effective.
-    device.write(BME280.DEFINES.REG.CTRL_HUM,1);
-    //Configure device as one time  (forced mode)
-    device.writeByte(BME280.DEFINES.REG.CTRL_MEAS,0x24| BME280.DEFINES.MODE.FORCED);
-    //Status should be measuring
-    trace("status: 0b"+(device.readByte(BME280.DEFINES.REG.STATUS)&0x0F).toString(2)+'\n');
+let config= device.readConfigs();
 
-    //wait for a measure to be available.
-    for(;;) {
-        if( device.readByte(BME280.DEFINES.REG.CTRL_MEAS)& BME280.DEFINES.MODE.FORCED) break;
+function readSAmples(count) {
+    for( let i= 1; i<=count; i++ ) {
+        trace("##### Sample #"+i+"\n")
+        //Perform a read in forced mode.
+        config.forceRead(device);
+
+        //wait for a measure to be available.
+        while(device.isMeasuring);
+
+
+        let sample= device.readRaw();
+
+        let temp,t_fine;
+        [temp,t_fine]= calibrate.getTemp(sample);
+        trace("Temperatura: "+temp/100.0+" ºC ("+sample.temp+") t_fine="+t_fine+"\n");
+
+        let hum= calibrate.getHum(sample,t_fine);
+        trace("Humidity: "+(hum/1024.0).toFixed(2)+" % ("+sample.hum+")\n");
+
+        let press= calibrate.getPress(sample,t_fine);
+        trace("Pressure:"+(press/1600.0).toFixed(3)+" hPa ("+sample.press+")\n");
+        Timer.delay(2000);
     }
+}
 
-    trace("status: 0b"+device.status.toString(2)+'\n');
-
-    let sample= device.readRaw();
-
-    trace("device Temperatura:"+sample.temp+'\n');
-    trace("device Presión:"+sample.press+'\n');
-    trace("device Humedad:"+sample.hum+'\n');
-
-    trace("AFTER CALIBRATION:\n");
-    
-    let temp,t_fine;
-    [temp,t_fine]= calibrate.getTemp(sample);
-    trace("device Temperatura: "+temp/100.0+" ºC\n");
-    trace("device tfine:"+t_fine+'\n');
-
-    let hum= calibrate.getHum(sample,t_fine);
-    trace("device Humidity: "+(hum/1024.0).toFixed(2)+" %\n");
-
-    let press= calibrate.getPress(sample,t_fine);
-    trace("device Pressure:"+(press/1600.0).toFixed(3)+" hPa\n");
-
-},1000);
+trace("#### Reading 3 samples in force mode, no filter, oversamplingx1\n ###")
+config.overSampHum= BME280.DEFINES.OVERSAMP.X1;
+config.overSampPress= BME280.DEFINES.OVERSAMP.X1;
+config.overSampTemp= BME280.DEFINES.OVERSAMP.X1;
+config.write(device); //or equivalent device.writeConfigs(config)
+// Configure device as one time read in forced mode
+config.mode= BME280.DEFINES.MODE.FORCED;
+readSAmples(3);
+trace("#### Reading 3 samples in force mode, no filter, oversamplingx4\n ###")
+config.overSampHum= BME280.DEFINES.OVERSAMP.X4;
+config.overSampPress= BME280.DEFINES.OVERSAMP.X4;
+config.overSampTemp= BME280.DEFINES.OVERSAMP.X4;
+config.write(device); //or equivalent device.writeConfigs(config)
+// Configure device as one time read in forced mode
+config.mode= BME280.DEFINES.MODE.FORCED;
+readSAmples(3);
+trace("#### Reading 3 samples in force mode, filter x 4 , oversamplingx4\n ###")
+config.overSampHum= BME280.DEFINES.OVERSAMP.X4;
+config.overSampPress= BME280.DEFINES.OVERSAMP.X4;
+config.overSampTemp= BME280.DEFINES.OVERSAMP.X4;
+config.filter= BME280.DEFINES.FILTER.X4;
+config.write(device); //or equivalent device.writeConfigs(config)
+// Configure device as one time read in forced mode
+config.mode= BME280.DEFINES.MODE.FORCED;
+readSAmples(3);
