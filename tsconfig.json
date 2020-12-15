@@ -13,7 +13,7 @@
           "aral/*": ["./arallib/*"],
           "loadmod": ["D:/Users/fernando/ProyectosElectronica/misProyectos/pruebasModdable/loadmod/loadmod"]
         },    
-        "outDir": "./IGNORE"
+        "outDir": "./outputJS"
     },
     "typedocOptions": {
       "mode": "modules",

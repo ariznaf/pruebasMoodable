@@ -12,6 +12,6 @@
           "*": ["D:/Users/fernando/ProyectosElectronica/moddable/typings/*","*"],
           "util/color/*": ["../lib/color/*"],
         },    
-        "outDir": "./IGNORE"
+        "outDir": "../outputJS"
     }
 }
