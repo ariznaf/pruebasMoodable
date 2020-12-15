@@ -9,7 +9,7 @@
                 "D:/Users/fernando/ProyectosElectronica/moddable/xs/includes/xs"
         ],
         "paths": {
-          "*": ["D:/Users/fernando/ProyectosElectronica/moddable/typings/*","./*"],
+          "*": ["D:/Users/fernando/ProyectosElectronica/moddable/typings/*","*"],
           "util/color/*": ["../lib/color/*"],
         },    
         "outDir": "./IGNORE"
