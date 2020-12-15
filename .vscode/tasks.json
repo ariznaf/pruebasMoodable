@@ -1,17 +1,103 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "debug host",
-            "type": "process",
-            "command":"\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars32.bat\" mcconfig -d -m -p esp32",
-            "problemMatcher": [],
+            "label": "Build ESP8266 Debug",
+            "type": "shell",
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "showReuseMessage": false
+            },
+            "command": "mcconfig -m -d -p esp/nodemcu",
+            "windows": {
+                "options": {
+                    "shell": {
+                        "args": [
+                            "/C",
+                            "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars32.bat\"",
+                            "x64",
+                            "&&"
+                        ],
+                        "executable": "cmd.exe"
+                    },
+                    "env": {
+                        "UPLOAD_PORT": "COM11"
+                    }
+                }
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build ESP32 Debug",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "showReuseMessage": false
+            },
+            "command": "mcconfig -m -d -p esp32/nodemcu",
+            "windows": {
+                "options": {
+                    "shell": {
+                        "args": [
+                            "/C",
+                            "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars32.bat\"",
+                            "x64",
+                            "&&"
+                        ],
+                        "executable": "cmd.exe"
+                    },
+                    "env": {
+                        "UPLOAD_PORT": "COM7"
+                    }
+                }
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run current ESP32 Debug",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "showReuseMessage": false
+            },
+            "command": "mcconfig -m -d -p esp32/nodemcu",
+            "windows": {
+                "options": {
+                    "cwd": "${fileDirName}",
+                    "shell": {
+                        "args": [
+                            "/K",
+                            "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars32.bat\"",
+                            "x64",
+                            "&&"
+                        ],
+                        "executable": "cmd.exe"
+                    },
+                    "env": {
+                        "UPLOAD_PORT": "COM7"
+                    }
+                }
+            },
+            "problemMatcher": []
         }
+  
     ]
 }

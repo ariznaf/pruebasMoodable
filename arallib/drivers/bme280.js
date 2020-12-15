@@ -1,62 +1,71 @@
 import SMBUS from "pins/smbus";
 
 debugger;
-const DEFINES = Object.freeze({
+const DEFINES = {
     ADDRESS: 0x76,
     ALTADDRESS:  0x77,
     CHPID: 0x60,
     RESETCODE : 0xB6,
-    REG : {
-        DIG_T: 0x88,
-        DIG_P: 0x8E,
-        DIG_H1: 0xA1,
-        ID: 0xD0,
-        RESET: 0xE0,
-        DIG_H2: 0xE1,
-        CTRL_HUM: 0xF2,
-        STATUS: 0xF3,   
-        CTRL_MEAS: 0xF4,
-        CONFIG: 0xF5,
-        PRES: 0xF7,
-        TEMP: 0xFA,
-        HUM: 0xFD
-    },
-    STATUS : {
-        MEASURING: 0b1000,
-        IM_UPDATE: 0b1
-    },
-    MODE : {
-        SLEEP: 0x00,
-        FORCED: 0x01,
-        NORMAL: 0x11
-    },
-    OVERSAMP: {
-        SKIP: 0,
-        X1: 1,
-        X2: 2,
-        X4: 3,
-        X8: 4,
-        X16: 5
-    },
-    FILTER: {
-        OFF: 0,
-        x2: 1,
-        X4: 2,
-        X8: 3,
-        X16:4
-    },
-    TSTANDBY: {
-        T0_5: 0,
-        T62_5: 1,
-        T125: 2,
-        T250: 3,
-        T500: 4,
-        T1000: 5,
-        T10: 6,
-        T20: 7
-    }
+}
+Object.freeze(DEFINES);
+const REG = {
+    DIG_T: 0x88,
+    DIG_P: 0x8E,
+    DIG_H1: 0xA1,
+    ID: 0xD0,
+    RESET: 0xE0,
+    DIG_H2: 0xE1,
+    CTRL_HUM: 0xF2,
+    STATUS: 0xF3,   
+    CTRL_MEAS: 0xF4,
+    CONFIG: 0xF5,
+    PRES: 0xF7,
+    TEMP: 0xFA,
+    HUM: 0xFD
+}
+Object.freeze(REG);
+const STATUS = {
+    MEASURING: 0b1000,
+    IM_UPDATE: 0b1
+}
+Object.freeze(STATUS);
 
-},true);
+const MODE= {
+    SLEEP: 0x00,
+    FORCED: 0x01,
+    NORMAL: 0x11
+}
+Object.freeze(MODE);
+const OVERSAMP= {
+    SKIP: 0,
+    X1: 1,
+    X2: 2,
+    X4: 3,
+    X8: 4,
+    X16: 5
+}
+Object.freeze(OVERSAMP);
+const FILTER= {
+    OFF: 0,
+    x2: 1,
+    X4: 2,
+    X8: 3,
+    X16:4
+}
+Object.freeze(FILTER);
+
+const TSTANDBY=  {
+    T0_5: 0,
+    T62_5: 1,
+    T125: 2,
+    T250: 3,
+    T500: 4,
+    T1000: 5,
+    T10: 6,
+    T20: 7
+}
+Object.freeze(TSTANDBY);
+
 
 /**
  * @description Implements driver to access BME280 data, a device that provides high precision temperature, pression and humidity.
@@ -66,26 +75,6 @@ const DEFINES = Object.freeze({
  * @extends SMBUS
  */
 class Device extends SMBUS {
-    /**
-     * This function returns true if the status value passed indicates that the device is performing a measure operation.
-     * 
-     * @param {*} status value read from status register.
-     * @returns true if measuring.
-     */
-    static statusIsMeasuring(status) {
-        return( (status & DEFINES.STATUS.MEASURING) != 0 );
-
-    }
-    /**
-     * This function returns true if the status value passed indicates that the device is performing a NVM update operation (IM_UPDATE)
-     * 
-     * @param {*} status value read from status register.
-     * @returns true if updating.
-     */
-    static statusIsUpdating(status) {
-        return( (status & DEFINES.STATUS.IM_UPDATE) != 0 );
-
-    }
 
     /**
      * @description Creates a I2C connection with the device.
@@ -98,7 +87,8 @@ class Device extends SMBUS {
      * 
      */
     constructor(dict={address: DEFINES.ADDRESS}) {
-        if (dict.address === undefined) dict.addres= DEFINES.ADDRESS;        
+        if (dict=== undefined) dict= {address: DEFINES.ADDRESS}
+        else if(dict.address === undefined) dict.addres= DEFINES.ADDRESS;        
         super(dict);
     }
     /**
@@ -106,7 +96,7 @@ class Device extends SMBUS {
      * @returns {Number} (Uint8) chip ID
      */
     get ID(){
-        return this.readByte(DEFINES.REG.ID);
+        return this.readByte(REG.ID);
     }
 
     /**
@@ -122,13 +112,13 @@ class Device extends SMBUS {
      * @returns {} Returns the status register of the BM280
      */
     get status() {
-        return(this.readByte(DEFINES.REG.STATUS));
+        return(this.readByte(REG.STATUS));
     }
     get isMeasuring() {
-        return((this.readByte(DEFINES.REG.STATUS)&DEFINES.STATUS.MEASURING)!= 0);
+        return((this.readByte(REG.STATUS)&STATUS.MEASURING)!= 0);
     }
     get isUpdatingIM() {
-        return((this.readByte(DEFINES.REG.STATUS)&DEFINES.STATUS.IM_UPDATE)!= 0);
+        return((this.readByte(REG.STATUS)&STATUS.IM_UPDATE)!= 0);
     }
 
     /**
@@ -155,7 +145,7 @@ class Device extends SMBUS {
      * @returns true if the read has already finished.
      */
     forceReadFinished() {
-        return (this.readByte(DEFINES.REG.CTRL_MEAS)& 0b11) != DEFINES.MODE.SLEEP;
+        return (this.readByte(REG.CTRL_MEAS)& 0b11) != MODE.SLEEP;
     }
     /**
      * Read all channels from the device
@@ -169,7 +159,7 @@ class Device extends SMBUS {
      */
     reset()
     {
-        this.writeByte(DEFINES.REG.RESET,DEFINES.RESETCODE);
+        this.writeByte(REG.RESET,DEFINES.RESETCODE);
     }
         /**
      * @description Reads Temperature calibration data from device and returns a TempCal object.
@@ -185,14 +175,14 @@ Object.freeze(Device.prototype);
 class DeviceConfig {
     #data;
     constructor( device ) {
-        this.#data= device.readBlock(DEFINES.REG.CTRL_HUM,4);
+        this.#data= device.readBlock(REG.CTRL_HUM,4);
     }
     /**
      * @desc writes the all the config data (config, ctrl_meas and ctrl_hum) to the device in one operation.
      * @param device SMBUS device to write data to.
      */
     write(device) {
-        device.writeBlock(DEFINES.REG.CTRL_HUM,4);
+        device.writeBlock(REG.CTRL_HUM,4);
     }
 
     /**
@@ -200,7 +190,7 @@ class DeviceConfig {
      * @param device SMBUS device to write to.
      */
     writeConfig(device) {
-        device.writeByte(DEFINES.REG.CONFIG,value);
+        device.writeByte(REG.CONFIG,value);
     }
     get config() {
         return this.#data[3];
@@ -241,7 +231,7 @@ class DeviceConfig {
      * @param device SMBUS device to write to.
      */
     writeCtrlMeas(device) {
-        device.writeByte(DEFINES.REG.CTRL_MEAS,this.#data[2]);        
+        device.writeByte(REG.CTRL_MEAS,this.#data[2]);        
     }
 
     get ctrlMeas() {
@@ -283,7 +273,7 @@ class DeviceConfig {
      * 
      */
     forceRead(device) {
-        this.mode= DEFINES.MODE.FORCED;
+        this.mode= MODE.FORCED;
         this.writeCtrlMeas(device);
     }
 
@@ -295,7 +285,7 @@ class DeviceConfig {
      * @param device SMBUS device to write to.
      */
     writeCtrlHum(device) {
-        device.writeByte(DEFINES.REG.CTRL_HUM,this.#data[0]);
+        device.writeByte(REG.CTRL_HUM,this.#data[0]);
     }
     get ctrlHum() {
         return(this.#data[0]);
@@ -326,7 +316,7 @@ class RawSample {
      */
     constructor( device ) {
         let buffer= new ArrayBuffer(8);
-        device.readBlock(DEFINES.REG.PRES,8,buffer);
+        device.readBlock(REG.PRES,8,buffer);
         this.#data= new DataView( buffer);
     }
     get press() {
@@ -371,7 +361,7 @@ Object.freeze(RawSample.prototype);
 *  pos 28-29:  dig_P8 Int16 [7:0]/[15:8]
 *  pos 30-31:  dig_P9 Int16 [7:0]/[15:8]
 */
-const CALDIG = Object.freeze({
+const CALDIG = {
     dig_T1: 0,
     dig_T2: 2,
     dig_T3: 4,
@@ -389,7 +379,8 @@ const CALDIG = Object.freeze({
     dig_P7: 25,
     dig_P8: 27,
     dig_P9: 29
-},true);
+}
+Object.freeze(CALDIG);
 
 
 /**
@@ -409,20 +400,20 @@ class Calibrate {
         let buffer= new ArrayBuffer(press?31:13);
         let data= new Uint8Array(buffer);
         //read temperature parameters to the param 
-        device.readBlock(DEFINES.REG.DIG_T,6,buffer);
+        device.readBlock(REG.DIG_T,6,buffer);
 
         //read humidity params and copy it to the corresponding param table positions.
         //read the single byte dig_H1 and copy it directly to the corresponding buffer position.
-        data[CALDIG.dig_H1]=device.readByte(DEFINES.REG.DIG_H1);
+        data[CALDIG.dig_H1]=device.readByte(REG.DIG_H1);
 
         //Read rest of parameters (dig_H2 to dig_H6) in a buffer and copy them to the appropiate buffer position.
-        let newbuf= device.readBlock(DEFINES.REG.DIG_H2,6);
+        let newbuf= device.readBlock(REG.DIG_H2,6);
         data.set(newbuf,CALDIG.dig_H2);
 
 
         //If press calibration data is to be read, read it from the device and copy it to the destination table.
         if(press) {
-            newbuf= device.readBlock(DEFINES.REG.DIG_P,18);
+            newbuf= device.readBlock(REG.DIG_P,18);
             data.set(newbuf,CALDIG.dig_P1)
         }
         this.#param= new DataView(buffer);
@@ -519,4 +510,5 @@ class Calibrate {
 }
 Object.freeze(Calibrate.prototype);
 
-export {Device,DeviceConfig,DEFINES, RawSample, Calibrate};
+export {Device,DeviceConfig,RawSample, Calibrate}
+export {DEFINES,REG, STATUS, OVERSAMP,TSTANDBY, MODE,FILTER}

@@ -10,7 +10,7 @@
 	"modules": {
 		"*": [
 			"./main",
-			"./bme280"
+			"../../bme280"
 		],
 		"pins/pwm": "$(MODULES)/pins/pwm/pwm",
 		"pins/smbus": "$(MODULES)/pins/smbus/smbus"

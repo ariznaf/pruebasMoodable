@@ -12,10 +12,11 @@
  *
  */
 
- import blue from "util_color/blue";
- import red from "util_color/red";
+import red from "util/color/red"
+import blue from "util/color/blue"
+import Timer from "timer";
 
-trace("Welcome.\n");
-
-blue();
 red();
+
+Timer.delay(2000);
+blue();

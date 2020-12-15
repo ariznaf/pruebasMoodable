@@ -18,15 +18,20 @@ trace("Raw humidity  read: "+rawspl.hum+"\n");
 let calibrate= device.readCalibration(true);
 let config= device.readConfigs();
 
-function readSAmples(count) {
+function readSamples(count,delay) {
     for( let i= 1; i<=count; i++ ) {
+        
         trace("##### Sample #"+i+"\n")
         //Perform a read in forced mode.
-        config.forceRead(device);
+        if(config.mode== BME280.MODE.FORCED) 
+            config.forceRead(device);
 
         //wait for a measure to be available.
-        while(device.isMeasuring);
-
+        for(let i=0;i<5;i++){
+            if( !device.isMeasuring ) break;
+            Timer.delay(10);
+        }
+        if( i== 5) throw new Error("Timeout waiting for BME280 device to finish measuring.")
 
         let sample= device.readRaw();
 
@@ -39,32 +44,42 @@ function readSAmples(count) {
 
         let press= calibrate.getPress(sample,t_fine);
         trace("Pressure:"+(press/1600.0).toFixed(3)+" hPa ("+sample.press+")\n");
-        Timer.delay(2000);
+        Timer.delay(delay);
     }
 }
-
 trace("#### Reading 3 samples in force mode, no filter, oversamplingx1\n ###")
-config.overSampHum= BME280.DEFINES.OVERSAMP.X1;
-config.overSampPress= BME280.DEFINES.OVERSAMP.X1;
-config.overSampTemp= BME280.DEFINES.OVERSAMP.X1;
+config.overSampHum= BME280.OVERSAMP.X1;
+config.overSampPress= BME280.OVERSAMP.X1;
+config.overSampTemp= BME280.OVERSAMP.X1;
 config.write(device); //or equivalent device.writeConfigs(config)
 // Configure device as one time read in forced mode
-config.mode= BME280.DEFINES.MODE.FORCED;
-readSAmples(3);
+config.mode= BME280.MODE.FORCED;
+readSamples(3,2000);
 trace("#### Reading 3 samples in force mode, no filter, oversamplingx4\n ###")
-config.overSampHum= BME280.DEFINES.OVERSAMP.X4;
-config.overSampPress= BME280.DEFINES.OVERSAMP.X4;
-config.overSampTemp= BME280.DEFINES.OVERSAMP.X4;
+config.overSampHum= BME280.OVERSAMP.X4;
+config.overSampPress= BME280.OVERSAMP.X4;
+config.overSampTemp= BME280.OVERSAMP.X4;
 config.write(device); //or equivalent device.writeConfigs(config)
 // Configure device as one time read in forced mode
-config.mode= BME280.DEFINES.MODE.FORCED;
-readSAmples(3);
+config.mode= BME280.MODE.FORCED;
+readSamples(3,2000);
 trace("#### Reading 3 samples in force mode, filter x 4 , oversamplingx4\n ###")
-config.overSampHum= BME280.DEFINES.OVERSAMP.X4;
-config.overSampPress= BME280.DEFINES.OVERSAMP.X4;
-config.overSampTemp= BME280.DEFINES.OVERSAMP.X4;
-config.filter= BME280.DEFINES.FILTER.X4;
+config.overSampHum= BME280.OVERSAMP.X4;
+config.overSampPress= BME280.OVERSAMP.X4;
+config.overSampTemp= BME280.OVERSAMP.X4;
+config.filter= BME280.FILTER.X4;
 config.write(device); //or equivalent device.writeConfigs(config)
 // Configure device as one time read in forced mode
-config.mode= BME280.DEFINES.MODE.FORCED;
-readSAmples(3);
+config.mode= BME280.MODE.FORCED;
+readSamples(3,2000);
+trace("#### Reading 3 samples in normal mode reading samples every second, filter off , oversamplingx1\n ###")
+config.overSampHum= BME280.OVERSAMP.X1;
+config.overSampPress= BME280.OVERSAMP.X1;
+config.overSampTemp= BME280.OVERSAMP.X1;
+config.filter= BME280.FILTER.OFF;
+config.tstandby= BME280.TSTANDBY.T1000;
+config.write(device); //or equivalent device.writeConfigs(config)
+// Configure device as one time read in forced mode
+config.mode= BME280.MODE.NORMAL;
+readSamples(3,1000);
+trace("### TEST FINISHED\n");

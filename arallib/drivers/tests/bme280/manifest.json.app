@@ -1,14 +1,14 @@
 {
 	"modules": {
 		"*": [
-            "./app",
-            "./bme280"
-        ]
-    },
-    "preload": [
-        "bme280"
-    ],
-    "strip": [
+			"./app",
+			"../../bme280"
+		]
+	},
+	"preload": [
+		"bme280"
+	],
+	"strip": [
 		"Atomics",
 		"eval",
 		"Function",
@@ -21,6 +21,8 @@
 		"SharedArrayBuffer",
 		"WeakMap",
 		"WeakSet"
-	]
+	],
+	"build": {
+		"NAME": "testBMEapp"
+	}
 }
-    

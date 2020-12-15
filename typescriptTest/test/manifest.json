@@ -8,8 +8,7 @@
 		],
 		"util/color/*": "../lib/color/*"
 	},
-	"strip": [],
 	"build": {
-		"NAME": "treeImportTest"
+		"NAME": "typescriptTest"
 	}
 }

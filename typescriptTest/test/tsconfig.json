@@ -9,14 +9,9 @@
                 "D:/Users/fernando/ProyectosElectronica/moddable/xs/includes/xs"
         ],
         "paths": {
-          "*": ["D:/Users/fernando/ProyectosElectronica/moddable/typings/*","*"],
-          "aral/*": ["./arallib/*"],
-          "loadmod": ["D:/Users/fernando/ProyectosElectronica/misProyectos/pruebasModdable/loadmod/loadmod"]
+          "*": ["D:/Users/fernando/ProyectosElectronica/moddable/typings/*","./*"],
+          "util/color/*": ["../lib/color/*"],
         },    
         "outDir": "./IGNORE"
-    },
-    "typedocOptions": {
-      "mode": "modules",
-      "out": "docs"
-      }
+    }
 }

@@ -7,6 +7,13 @@
 	"defines": {
 		"XS_MODS": 1
 	},
+	"defines": {
+		"creation": {
+			"keys": {
+				"available": 256
+			}
+		}
+	},
 	"modules": {
 		"*": [
 			"./main",

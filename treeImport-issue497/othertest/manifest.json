@@ -1,8 +1,0 @@
-{
-	"modules": {
-		"*": [
-			"./app"
-		],
-		"util_color/*": "../lib/color/*"
-	}
-}
