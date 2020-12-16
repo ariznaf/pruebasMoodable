@@ -1,17 +1,16 @@
 {
   "compilerOptions": {
-        "target": "es2020",
-        "module": "es2020",
+        "target": "es2018",
+        "module": "es2015",
         "checkJs": false,
-//        "allowJs": true,
+        "allowJs": false,
         "baseUrl": ".",
         "types": [
                 "D:/Users/fernando/ProyectosElectronica/moddable/xs/includes/xs"
         ],
         "paths": {
           "*": ["D:/Users/fernando/ProyectosElectronica/moddable/typings/*","*"],
-          "aral/*": ["./arallib/*"],
-          "loadmod": ["D:/Users/fernando/ProyectosElectronica/misProyectos/pruebasModdable/loadmod/loadmod"]
+          "aral/*": ["../../*"],
         },
         "outDir": "./outputJS"
     },

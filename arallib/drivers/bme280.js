@@ -109,7 +109,7 @@ class Device extends SMBUS {
 
     /**
      * @description Gets the status register from the device.
-     * @returns {} Returns the status register of the BM280
+     * @returns  Returns the status register of the BM280
      */
     get status() {
         return(this.readByte(REG.STATUS));
@@ -164,7 +164,7 @@ class Device extends SMBUS {
         /**
      * @description Reads Temperature calibration data from device and returns a TempCal object.
      * 
-     * @returns {TempCal} object  with temperature calibration data from the device. Use it to convert raw data to engineering units.
+     * @returns {Calibrate} object  with temperature calibration data from the device. Use it to convert raw data to engineering units.
      */
     readCalibration(press=false) {
         return new Calibrate(this,press);
@@ -190,7 +190,7 @@ class DeviceConfig {
      * @param device SMBUS device to write to.
      */
     writeConfig(device) {
-        device.writeByte(REG.CONFIG,value);
+        device.writeByte(REG.CONFIG,this.config);
     }
     get config() {
         return this.#data[3];
@@ -422,7 +422,7 @@ class Calibrate {
      * @description Calculates Temperature in ºC from raw temp data from the device.
      * also returns an integer representatios of temperature used in calculating pressure and humidity (t_fine)
      * 
-     * @param {RawSample} raw : raw temperature read from the device 
+     * @param {RawSample} rawSample temperature read from the device 
      * @returns {Array}  Array with two numbers:
      *   [0] (Number) temperature (int32) calculated in ºC*100 in integer form (100 represents 1 ºC)
      *   [1] (Number) temperature (int32) parameter to pass to humidity and pressure calcutations.
@@ -443,7 +443,7 @@ class Calibrate {
      * @description Calculates Humidity  in % from raw temp data from the device (and the t_fine value)
      * also returns an integer representatios of temperature used in calculating pressure and humidity (t_fine)
      * 
-     * @param {RawSample} raw (uint16) raw : raw temperature read from the device 
+     * @param {RawSample} rawSample (uint16) raw : raw temperature read from the device 
      * @param {Number} t_fine (int16) The t_fine temperature param returned previously by readTemp used in calibrations calculus.
      * @returns {Number} Humidity (int32) in %*1024 in integer form (1024 represents 1% humidity, NAN if device is not configured to read humidity)
      **/
@@ -471,7 +471,7 @@ class Calibrate {
      * @description Calculates Pressure in hPafrom raw temp data from the device (and the t_fine value)
      * also returns an integer representatios of temperature used in calculating pressure and humidity (t_fine)
      * 
-     * @param {Number} raw (uint16) raw : raw temperature read from the device 
+     * @param {Number} rawSample (uint16) raw : raw temperature read from the device 
      * @param {Number} t_fine (int16) The t_fine temperature param returned previously by readTemp used in calibrations calculus.
      * @returns {Number} Pressure (int32) in Pa*16  (16 represent 1 Pa, NAN if device is not configured to read humidity or pressure calibration parameters have not been read)
      **/

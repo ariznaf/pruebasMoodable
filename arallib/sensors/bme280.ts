@@ -123,9 +123,10 @@ class Sensor  {
 
         //wait for a measure to be available and read it when it is.
         let i=0;
-        Timer.set(()=>{
+        Timer.set((id)=>{
             //If not available after 5 times, abort with error.
             if( i==5) {
+                Timer.clear(id);
                 //If a reject method has been passed, use reject, if not, throw an exception.
                 let err= new Error("Timeout waiting for BME280 device to finish measuring.")
                 if (reject != null) reject(err);
@@ -135,6 +136,7 @@ class Sensor  {
             i++;
             //If still reading sample, wait for next try.
             if( this.#device.isMeasuring) return;
+            Timer.clear(id);
             //Sample ready, read it an return the sample as resolved promise.
             let rawsamp= this.#device.readRaw();
             let sample= <Sample>{}, t_fine:number;
@@ -147,7 +149,7 @@ class Sensor  {
             sample.hum/=1024.;
             sample.pres/=1600.;
             resolve(sample);
-        },0,10);
+        },10,true);
         });
     }
 }

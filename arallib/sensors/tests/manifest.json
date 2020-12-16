@@ -1,6 +1,7 @@
 {
 	"include": [
 		"$(MODDABLE)/examples/manifest_base.json",
+		"$(MODDABLE)/examples/manifest_typings.json",
 		"$(MODULES)/pins/digital/manifest.json",
 		"$(MODULES)/pins/i2c/manifest.json"
 	],
@@ -12,7 +13,7 @@
 			"./main",
 			"../bme280"
 		],
-		"aral/drivers/bme280": "../../drivers/bme280",
+		"aral/drivers/*": "../../drivers/*",
 		"pins/pwm": "$(MODULES)/pins/pwm/pwm",
 		"pins/smbus": "$(MODULES)/pins/smbus/smbus"
 	},
