@@ -1,4 +1,11 @@
 {
     "javascript.suggest.autoImports": false,
-    "typescript.suggest.autoImports": false
+    "typescript.suggest.autoImports": false,
+    "terminal.integrated.shell.windows": "C:\\Windows\\System32\\cmd.exe",
+    "terminal.integrated.cwd": "${fileDirname}",
+    "terminal.integrated.shellArgs.windows":[
+        "/K",
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars32.bat",
+        "x64"
+    ]
 }

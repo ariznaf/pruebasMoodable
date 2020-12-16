@@ -79,9 +79,10 @@
                 "showReuseMessage": false
             },
             "command": "mcconfig -m -d -p esp32/nodemcu",
+            "options": {
+            },
             "windows": {
                 "options": {
-                    "cwd": "${fileDirName}",
                     "shell": {
                         "args": [
                             "/K",
