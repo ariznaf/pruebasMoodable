@@ -5,9 +5,7 @@
 		"$(MODULES)/pins/i2c/manifest.json"
 	],
 	"defines": {
-		"XS_MODS": 1
-	},
-	"defines": {
+		"XS_MODS": 1,
 		"creation": {
 			"keys": {
 				"available": 256

@@ -1,4 +1,4 @@
-import {Sensor, Config, Mode, Sample} from "../bme280";
+import {Sensor, Config, Mode, Sample} from "aral/sensors/bme280";
 
 let sensor= new Sensor();
 
@@ -18,5 +18,3 @@ sensor.config({
 });
 
 sensor.read().then(showSample);
-
-

@@ -7,5 +7,20 @@
         "/K",
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars32.bat",
         "x64"
+    ],
+    "githubIssues.queries": [
+
+        {
+            "label": "Mis Asuntos",
+            "query": "assignee:${owner} state:open"
+        },
+        {
+            "label": "Asuntos pendientes",
+            "query": "author:${user} state:open repo:${owner}/${repository} sort:created-desc"
+        },
+        {
+            "label": "Asuntos Cerrados",
+            "query": "author:${user} state:closed repo:${owner}/${repository} sort:created-desc"
+        }
     ]
 }
