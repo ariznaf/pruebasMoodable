@@ -1,18 +1,16 @@
 {
+	"build": 
 	"include": [
 		"$(MODDABLE)/examples/manifest_base.json",
 		"$(MODDABLE)/examples/manifest_typings.json",
 		"$(MODULES)/pins/digital/manifest.json",
 		"$(MODULES)/pins/i2c/manifest.json"
 	],
-	"defines": {
-		"XS_MODS": 0
-	},
 	"modules": {
 		"*": [
-			"./main",
-			"../bme280"
+			"./main"
 		],
+		"aral/sensors/*": "../*",
 		"aral/drivers/*": "../../drivers/*",
 		"pins/pwm": "$(MODULES)/pins/pwm/pwm",
 		"pins/smbus": "$(MODULES)/pins/smbus/smbus"
